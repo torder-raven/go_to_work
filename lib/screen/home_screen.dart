@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../const/strings.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -15,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int myCurrentPosition = 0;
-  String btnMsg = "출근하기";
 
   static final LatLng stationLatLng = LatLng(37.5268, 126.9315); // 회사
   static final LatLng halfDistanceLatLng = LatLng(37.5267, 126.9295); // 중간지점
@@ -32,13 +33,13 @@ class _HomeScreenState extends State<HomeScreen> {
     zoom: 15,
   );
   static final Marker companyLocationMarker = Marker(
-    markerId: MarkerId('company'),
+    markerId: MarkerId(Strings.COMPANY),
     position: companyLatLng,
   );
 
   Circle getCircle(LatLng center) {
     return Circle(
-      circleId: CircleId('choolCheckCircle'),
+      circleId: CircleId(Strings.GO_TO_WORK),
       center: center,
       fillColor: Colors.blue.withOpacity(0.5),
       radius: 50,
@@ -62,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          if (snapShot.data == "위치 권한이 허가 되었습니다.") {
+          if (snapShot.data == Strings.LOCATION_OK_MSG) {
             return Column(
               children: [
                 Expanded(
@@ -89,25 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(
                       height: 20.0,
                     ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          final curPosition =
-                              myCurrentLocations[myCurrentPosition];
-
-                          final distance = Geolocator.distanceBetween(
-                              curPosition.latitude,
-                              curPosition.longitude,
-                              companyLatLng.latitude,
-                              companyLatLng.longitude);
-
-                          bool canCheck = distance < 100;
-
-                          if (canCheck)
-                            showAlertDialog(context, "출근 성공!");
-                          else
-                            showAlertDialog(context, "출근 실패!!!!!");
-                        },
-                        child: Text(btnMsg)),
+                    renderElevatedButton()
                   ],
                 ))
               ],
@@ -126,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar renderAppBar() {
     return AppBar(
       title: Text(
-        "오늘도 출근",
+        Strings.TODAY_ALSO_GO_TO_WORK,
         style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
       ),
       actions: [
@@ -140,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     myCurrentPosition += 1;
   }
 
-  ElevatedButton renderButton() {
+  ElevatedButton renderElevatedButton() {
     return ElevatedButton(
         onPressed: () async {
           final curPosition = myCurrentLocations[myCurrentPosition];
@@ -154,12 +137,12 @@ class _HomeScreenState extends State<HomeScreen> {
           bool canCheck = distance < 100;
 
           if (canCheck) {
-            showAlertDialog(context, "출근 성공!");
+            showAlertDialog(context, Strings.GO_TO_WORK_SUCCESS);
           } else {
-            showAlertDialog(context, "출근 실패!!!!!");
+            showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
           }
         },
-        child: Text('출근하기'));
+        child: Text(Strings.GO_TO_WORK));
   }
 
   void showAlertDialog(BuildContext context, String msg) {
@@ -184,7 +167,7 @@ Future<String> checkPermission() async {
   final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
 
   if (!isLocationEnabled) {
-    return '위치 서비스를 활성화 해주세요.';
+    return Strings.LOCATION_ENABLE_MSG;
   }
 
   LocationPermission checkedPermission = await Geolocator.checkPermission();
@@ -193,13 +176,13 @@ Future<String> checkPermission() async {
     checkedPermission = await Geolocator.requestPermission();
 
     if (checkedPermission == LocationPermission.denied) {
-      return '위치 권한을 허가해주세요.';
+      return Strings.LOCATION_PERMISSION_MSG;
     }
   }
 
   if (checkedPermission == LocationPermission.deniedForever) {
-    return '앱의 위치 권한을 세팅에서 허가해주세요.';
+    return Strings.LOCATION_SETTING_MSG;
   }
 
-  return "위치 권한이 허가 되었습니다.";
+  return Strings.LOCATION_OK_MSG;
 }
