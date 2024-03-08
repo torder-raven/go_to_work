@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -12,13 +14,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const LatLng companyLatLng = LatLng(37.527, 126.9278);
-  static const CameraPosition initialPosition =
-      CameraPosition(target: companyLatLng, zoom: 15);
-  static const Marker marker = Marker(
+  int myCurrentPosition = 0;
+  String btnMsg = "출근하기";
+
+  static final LatLng stationLatLng = LatLng(37.5268, 126.9315); // 회사
+  static final LatLng halfDistanceLatLng = LatLng(37.5267, 126.9295); // 중간지점
+  static final LatLng companyLatLng = LatLng(37.527, 126.9278); // 여의나루역
+
+  List<LatLng> myCurrentLocations = [
+    stationLatLng,
+    halfDistanceLatLng,
+    companyLatLng
+  ];
+
+  static final CameraPosition initialPosition = CameraPosition(
+    target: companyLatLng,
+    zoom: 15,
+  );
+  static final Marker companyLocationMarker = Marker(
     markerId: MarkerId('company'),
     position: companyLatLng,
   );
+
+  Circle getCircle(LatLng center) {
+    return Circle(
+      circleId: CircleId('choolCheckCircle'),
+      center: center,
+      fillColor: Colors.blue.withOpacity(0.5),
+      radius: 50,
+      strokeColor: Colors.blue,
+      strokeWidth: 1,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, snapShot) {
           if (!snapShot.hasData &&
               snapShot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -42,7 +69,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   flex: 2,
                   child: GoogleMap(
                     initialCameraPosition: initialPosition,
-                    markers: Set.from([marker]),
+                    markers: {companyLocationMarker},
+                    circles: {
+                      getCircle(myCurrentLocations[0]),
+                      getCircle(myCurrentLocations[1]),
+                      getCircle(myCurrentLocations[2]),
+                    },
                   ),
                 ),
                 Expanded(
@@ -57,7 +89,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(
                       height: 20.0,
                     ),
-                    ElevatedButton(onPressed: () {}, child: Text('당장 퇴근하기!'))
+                    ElevatedButton(
+                        onPressed: () async {
+                          final curPosition =
+                              myCurrentLocations[myCurrentPosition];
+
+                          final distance = Geolocator.distanceBetween(
+                              curPosition.latitude,
+                              curPosition.longitude,
+                              companyLatLng.latitude,
+                              companyLatLng.longitude);
+
+                          bool canCheck = distance < 100;
+
+                          if (canCheck)
+                            showAlertDialog(context, "출근 성공!");
+                          else
+                            showAlertDialog(context, "출근 실패!!!!!");
+                        },
+                        child: Text(btnMsg)),
                   ],
                 ))
               ],
@@ -76,10 +126,57 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar renderAppBar() {
     return AppBar(
       title: Text(
-        "오늘도 퇴근",
+        "오늘도 출근",
         style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
       ),
+      actions: [
+        IconButton(
+            onPressed: moveMyCurrentPosition, icon: Icon(Icons.chevron_right))
+      ],
     );
+  }
+
+  void moveMyCurrentPosition() {
+    myCurrentPosition += 1;
+  }
+
+  ElevatedButton renderButton() {
+    return ElevatedButton(
+        onPressed: () async {
+          final curPosition = myCurrentLocations[myCurrentPosition];
+
+          final distance = Geolocator.distanceBetween(
+              curPosition.latitude,
+              curPosition.longitude,
+              companyLatLng.latitude,
+              companyLatLng.longitude);
+
+          bool canCheck = distance < 100;
+
+          if (canCheck) {
+            showAlertDialog(context, "출근 성공!");
+          } else {
+            showAlertDialog(context, "출근 실패!!!!!");
+          }
+        },
+        child: Text('출근하기'));
+  }
+
+  void showAlertDialog(BuildContext context, String msg) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(msg),
+          content: Text(msg),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
 
@@ -105,18 +202,4 @@ Future<String> checkPermission() async {
   }
 
   return "위치 권한이 허가 되었습니다.";
-}
-
-class _CustomGoogleMap extends StatelessWidget {
-  final CameraPosition initialPosition;
-
-  const _CustomGoogleMap({super.key, required this.initialPosition});
-
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: initialPosition,
-    );
-  }
 }
