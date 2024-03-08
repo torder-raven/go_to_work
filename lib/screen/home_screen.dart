@@ -105,9 +105,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void withinRanged(bool b) {
-    setState(() {
+    // setState(() {
       isWithinRange = b;
-    });
+    // });
   }
 
   void onChoolCheckPressed() async {
