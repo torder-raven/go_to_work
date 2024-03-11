@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_to_work/util/check_permission.dart';
 import 'package:go_to_work/util/dialog_util.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../component/custom_googlemap.dart';
 import '../const/locations.dart';
 import '../const/strings.dart';
 
@@ -18,33 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int myCurrentPosition = 0;
-
-  List<LatLng> myCurrentLocations = [
-    Locations.stationLatLng,
-    Locations.middlePointLatLng,
-    Locations.companyLatLng,
-  ];
-
-  static final CameraPosition initialPosition = CameraPosition(
-    target: Locations.companyLatLng,
-    zoom: 15,
-  );
-  static final Marker companyLocationMarker = Marker(
-    markerId: const MarkerId(Strings.COMPANY),
-    position: Locations.companyLatLng,
-  );
-
-  Circle getCircle(String circleId, LatLng center) {
-    return Circle(
-      circleId: CircleId(circleId),
-      center: center,
-      fillColor: Colors.blue.withOpacity(0.5),
-      radius: 50,
-      strokeColor: Colors.blue,
-      strokeWidth: 1,
-    );
-  }
-
+  CustomGoogleMap customGoogleMap = CustomGoogleMap()..myCurrentPosition = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,21 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (snapShot.data == Strings.LOCATION_OK_MSG) {
             return Column(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: GoogleMap(
-                    initialCameraPosition: initialPosition,
-                    markers: {companyLocationMarker},
-                    circles: {
-                      getCircle(
-                          Strings.CIRCLE_ID_STATION, myCurrentLocations[0]),
-                      getCircle(Strings.CIRCLE_ID_MIDDLE_POINT,
-                          myCurrentLocations[1]),
-                      getCircle(
-                          Strings.CIRCLE_ID_COMPANY, myCurrentLocations[2]),
-                    },
-                  ),
-                ),
+                Expanded(flex: 2, child: customGoogleMap),
                 Expanded(
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -114,20 +72,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: [
         IconButton(
-            onPressed: moveMyCurrentPosition,
+            onPressed: () {
+              myCurrentPosition++;
+              customGoogleMap.myCurrentPosition = myCurrentPosition;
+            },
             icon: const Icon(Icons.chevron_right))
       ],
     );
   }
 
-  void moveMyCurrentPosition() {
-    myCurrentPosition += 1;
-  }
-
   ElevatedButton renderElevatedButton() {
     return ElevatedButton(
         onPressed: () async {
-          final curPosition = myCurrentLocations[myCurrentPosition];
+          final curPosition = Locations.myCurrentLocations[myCurrentPosition];
 
           final distance = Geolocator.distanceBetween(
               curPosition.latitude,
@@ -146,10 +103,5 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Text(
           Strings.GO_TO_WORK,
         ));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
