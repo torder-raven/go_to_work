@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_to_work/constant/strings.dart';
+import 'package:go_to_work/screen/widget/chool_check_button.dart';
+import 'package:go_to_work/screen/widget/home_app_bar.dart';
 import 'package:go_to_work/screen/widget/my_google_map.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -16,15 +18,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const LatLng baseLatLng = LatLng(
       MyGoogleMapConstants.BASE_LATITUDE, MyGoogleMapConstants.BASE_LONGITUDE);
-
   GoogleMapController? googleMapController;
-  bool isWithinRange = false;
   bool isDone = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBar(),
+        appBar: homeAppBar(onCurrentPositionPressed: onCurrentPositionPressed),
         body: FutureBuilder(
           future: checkPermission(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -41,73 +41,74 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             }
-
-            return Stack(
-              children: [
-                MyGoogleMap(
-                  baseLntLng: baseLatLng,
-                  onMapCreated: onMapCreated,
-                  withinRanged: withinRanged,
-                  isDone: isDone,
-                ),
-                if (!isDone && isWithinRange)
-                  Positioned(
-                    left: 20.0,
-                    right: 20.0,
-                    bottom: 50.0,
-                    child: _ChoolCheckButton(onPressed: onChoolCheckPressed),
-                  )
-              ],
-            );
+            return homeBody();
           },
         ));
   }
 
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        HomeScreenString.TITLE,
-        style: TextStyle(
-          color: Colors.blue,
-          fontWeight: FontWeight.w700,
+  void onCurrentPositionPressed() async {
+    if (googleMapController == null) {
+      return;
+    }
+
+    final location = await Geolocator.getCurrentPosition();
+
+    googleMapController!.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(
+          location.latitude,
+          location.longitude,
         ),
       ),
-      backgroundColor: Colors.white,
-      actions: [
-        IconButton(
-          onPressed: () async {
-            if (googleMapController == null) {
-              return;
-            }
-
-            final location = await Geolocator.getCurrentPosition();
-
-            googleMapController!.animateCamera(
-              CameraUpdate.newLatLng(
-                LatLng(
-                  location.latitude,
-                  location.longitude,
-                ),
-              ),
-            );
-          },
-          color: Colors.blue,
-          icon: const Icon(
-            Icons.my_location,
-          ),
-        ),
-      ],
     );
+  }
+
+  Widget homeBody() {
+    return StreamBuilder(
+      stream: Geolocator.getPositionStream(),
+      builder: (context, snapshot) {
+        bool withinRanged = false;
+        if (snapshot.hasData) {
+          withinRanged = checkLocation(snapshot.data!);
+        }
+
+        return Stack(
+          children: [
+            MyGoogleMap(
+              baseLntLng: baseLatLng,
+              onMapCreated: onMapCreated,
+              isWithin: withinRanged,
+              isDone: isDone,
+            ),
+            if (!isDone && withinRanged)
+              Positioned(
+                left: 20.0,
+                right: 20.0,
+                bottom: 50.0,
+                child: ChoolCheckButton(onPressed: onChoolCheckPressed),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool checkLocation(Position position) {
+    final start = position;
+    const end = baseLatLng;
+
+    final distance = Geolocator.distanceBetween(
+      start.latitude,
+      start.longitude,
+      end.latitude,
+      end.longitude,
+    );
+
+    return distance <= MyGoogleMapConstants.OK_DISTANCE;
   }
 
   void onMapCreated(GoogleMapController controller) {
     googleMapController = controller;
-  }
-
-  void withinRanged(bool b) {
-    // setState(() {
-      isWithinRange = b;
-    // });
   }
 
   void onChoolCheckPressed() async {
@@ -167,31 +168,5 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return true;
-  }
-}
-
-class _ChoolCheckButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _ChoolCheckButton({
-    required this.onPressed,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-      ),
-      onPressed: onPressed,
-      child: const Text(
-        HomeScreenString.BUTTON_TITLE,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20.0,
-        ),
-      ),
-    );
   }
 }
