@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_to_work/util/check_permission.dart';
+import 'package:go_to_work/util/dialog_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../const/locations.dart';
@@ -113,7 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: [
         IconButton(
-            onPressed: moveMyCurrentPosition, icon: const Icon(Icons.chevron_right))
+            onPressed: moveMyCurrentPosition,
+            icon: const Icon(Icons.chevron_right))
       ],
     );
   }
@@ -133,29 +135,17 @@ class _HomeScreenState extends State<HomeScreen> {
               Locations.companyLatLng.latitude,
               Locations.companyLatLng.longitude);
 
-          bool canCheck = distance < 100;
+          bool canChoolCheck = distance < 100;
 
-          if (canCheck) {
-            showAlertDialog(context, Strings.GO_TO_WORK_SUCCESS);
+          if (canChoolCheck) {
+            DialogUtil().showAlertDialog(context, Strings.GO_TO_WORK_SUCCESS);
           } else {
-            showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
+            DialogUtil().showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
           }
         },
         child: const Text(
           Strings.GO_TO_WORK,
         ));
-  }
-
-  void showAlertDialog(BuildContext context, String msg) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(msg),
-          content: Text(msg),
-        );
-      },
-    );
   }
 
   @override
