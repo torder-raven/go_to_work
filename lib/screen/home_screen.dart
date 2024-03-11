@@ -1,9 +1,8 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_to_work/util/check_permission.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../const/strings.dart';
@@ -54,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.purple[300],
       appBar: renderAppBar(),
       body: FutureBuilder<String>(
-        future: checkPermission(),
+        future: CheckPermission().checkPermission(),
         builder: (context, snapShot) {
           if (!snapShot.hasData &&
               snapShot.connectionState == ConnectionState.waiting) {
@@ -142,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
             showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
           }
         },
-        child: Text(Strings.GO_TO_WORK));
+        child: Text(Strings.GO_TO_WORK,));
   }
 
   void showAlertDialog(BuildContext context, String msg) {
@@ -161,28 +160,4 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     super.dispose();
   }
-}
-
-Future<String> checkPermission() async {
-  final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
-
-  if (!isLocationEnabled) {
-    return Strings.LOCATION_ENABLE_MSG;
-  }
-
-  LocationPermission checkedPermission = await Geolocator.checkPermission();
-
-  if (checkedPermission == LocationPermission.denied) {
-    checkedPermission = await Geolocator.requestPermission();
-
-    if (checkedPermission == LocationPermission.denied) {
-      return Strings.LOCATION_PERMISSION_MSG;
-    }
-  }
-
-  if (checkedPermission == LocationPermission.deniedForever) {
-    return Strings.LOCATION_SETTING_MSG;
-  }
-
-  return Strings.LOCATION_OK_MSG;
 }
