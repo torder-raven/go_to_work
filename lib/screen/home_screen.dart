@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_to_work/util/check_permission.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../const/locations.dart';
 import '../const/strings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,28 +18,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int myCurrentPosition = 0;
 
-  static final LatLng stationLatLng = LatLng(37.5268, 126.9315); // 회사
-  static final LatLng halfDistanceLatLng = LatLng(37.5267, 126.9295); // 중간지점
-  static final LatLng companyLatLng = LatLng(37.527, 126.9278); // 여의나루역
-
   List<LatLng> myCurrentLocations = [
-    stationLatLng,
-    halfDistanceLatLng,
-    companyLatLng
+    Locations.stationLatLng,
+    Locations.middlePointLatLng,
+    Locations.companyLatLng,
   ];
 
   static final CameraPosition initialPosition = CameraPosition(
-    target: companyLatLng,
+    target: Locations.companyLatLng,
     zoom: 15,
   );
   static final Marker companyLocationMarker = Marker(
-    markerId: MarkerId(Strings.COMPANY),
-    position: companyLatLng,
+    markerId: const MarkerId(Strings.COMPANY),
+    position: Locations.companyLatLng,
   );
 
-  Circle getCircle(LatLng center) {
+  Circle getCircle(String circleId, LatLng center) {
     return Circle(
-      circleId: CircleId(Strings.GO_TO_WORK),
+      circleId: CircleId(circleId),
       center: center,
       fillColor: Colors.blue.withOpacity(0.5),
       radius: 50,
@@ -71,9 +68,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     initialCameraPosition: initialPosition,
                     markers: {companyLocationMarker},
                     circles: {
-                      getCircle(myCurrentLocations[0]),
-                      getCircle(myCurrentLocations[1]),
-                      getCircle(myCurrentLocations[2]),
+                      getCircle(
+                          Strings.CIRCLE_ID_STATION, myCurrentLocations[0]),
+                      getCircle(Strings.CIRCLE_ID_MIDDLE_POINT,
+                          myCurrentLocations[1]),
+                      getCircle(
+                          Strings.CIRCLE_ID_COMPANY, myCurrentLocations[2]),
                     },
                   ),
                 ),
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.timelapse_rounded,
                       color: Colors.purple,
                       size: 50.0,
@@ -107,13 +107,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AppBar renderAppBar() {
     return AppBar(
-      title: Text(
+      title: const Text(
         Strings.TODAY_ALSO_GO_TO_WORK,
         style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
       ),
       actions: [
         IconButton(
-            onPressed: moveMyCurrentPosition, icon: Icon(Icons.chevron_right))
+            onPressed: moveMyCurrentPosition, icon: const Icon(Icons.chevron_right))
       ],
     );
   }
@@ -130,8 +130,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final distance = Geolocator.distanceBetween(
               curPosition.latitude,
               curPosition.longitude,
-              companyLatLng.latitude,
-              companyLatLng.longitude);
+              Locations.companyLatLng.latitude,
+              Locations.companyLatLng.longitude);
 
           bool canCheck = distance < 100;
 
@@ -141,7 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
             showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
           }
         },
-        child: Text(Strings.GO_TO_WORK,));
+        child: const Text(
+          Strings.GO_TO_WORK,
+        ));
   }
 
   void showAlertDialog(BuildContext context, String msg) {

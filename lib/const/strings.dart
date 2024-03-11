@@ -13,4 +13,8 @@ class Strings {
   static const LOCATION_PERMISSION_MSG = "위치 권한을 허가해주세요.";
   static const LOCATION_SETTING_MSG = "앱의 위치 권한을 세팅에서 허가해주세요.";
   static const LOCATION_OK_MSG = "위치 권한이 허가 되었습니다.";
+
+  static const CIRCLE_ID_COMPANY = "CIRCLE_ID_COMPANY";
+  static const CIRCLE_ID_MIDDLE_POINT = "CIRCLE_ID_MIDDLE_POINT";
+  static const CIRCLE_ID_STATION = "CIRCLE_ID_STATION";
 }
