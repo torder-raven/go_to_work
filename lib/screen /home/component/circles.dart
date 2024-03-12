@@ -3,16 +3,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../constant/values.dart';
 
-const LatLng companyLatLng = LatLng(
-  37.5233273,
-  126.921252,
-);
-
 const double okDistance = 100;
 
 Circle withinDistanceCircle = Circle(
   circleId: CircleId(Values.CIRCLE_ID_WITHIN),
-  center: companyLatLng,
+  center: Values.companyLatLng,
   fillColor: Colors.blue.withOpacity(0.5),
   radius: okDistance,
   strokeColor: Colors.blue,
@@ -21,7 +16,7 @@ Circle withinDistanceCircle = Circle(
 
 Circle notWithinDistanceCircle = Circle(
   circleId: CircleId(Values.CIRCLE_ID_NOT_WITHIN),
-  center: companyLatLng,
+  center: Values.companyLatLng,
   fillColor: Colors.red.withOpacity(0.5),
   radius: okDistance,
   strokeColor: Colors.red,
@@ -30,7 +25,7 @@ Circle notWithinDistanceCircle = Circle(
 
 Circle checkDoneCircle = Circle(
   circleId: CircleId(Values.CIRCLE_ID_NOT_CHECK_DONE),
-  center: companyLatLng,
+  center: Values.companyLatLng,
   fillColor: Colors.green.withOpacity(0.5),
   radius: okDistance,
   strokeColor: Colors.green,

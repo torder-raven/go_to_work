@@ -4,6 +4,7 @@ import 'package:go_to_work/screen%20/constant/text/dialog_text.dart';
 import 'package:go_to_work/screen%20/constant/text/label_text.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../common/check_permission.dart';
+import '../constant/values.dart';
 import 'component/app_bar.dart';
 import 'component/circles.dart';
 import 'component/custom_google_map.dart';
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: renderAppBar(iconButton: goToMyLocation(mapController: mapController)),
+      appBar: renderAppBar(iconButton: Location(onPressed: goToMyLocation)),
       body: FutureBuilder<String>(
         future: checkPermission(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -40,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(),
             );
           }
-          //todo: text 비교 말고 다른 값으로
           if (snapshot.data == DialogText.REQUEST_PERMISSION_GRANTED) {
             return StreamBuilder<Position>(
               stream: Geolocator.getPositionStream(),
@@ -72,10 +72,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  goToMyLocation() async {
+    if (mapController == null) {
+      return;
+    }
+
+    final location = await Geolocator.getCurrentPosition();
+
+    mapController?.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(
+          location.latitude,
+          location.longitude,
+        ),
+      ),
+    );
+  }
+
   setLocation(AsyncSnapshot<Position> snapshot) {
     if (snapshot.hasData) {
       final start = snapshot.data!;
-      final end = companyLatLng;
+      final end = Values.companyLatLng;
 
       final distance = Geolocator.distanceBetween(
         start.latitude,

@@ -2,17 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../constant/values.dart';
-import 'circles.dart';
 
 class CustomGoogleMap extends StatelessWidget {
   static final CameraPosition initialPosition = CameraPosition(
-    target: companyLatLng,
+    target: Values.companyLatLng,
     zoom: Values.ZOOM_DEFAULT,
   );
   static final double okDistance = Values.OK_DISTANCE_DEFAULT;
   static final Marker marker = Marker(
     markerId: MarkerId(Values.MARKER_ID_DEFAULT),
-    position: companyLatLng,
+    position: Values.companyLatLng,
   );
   final Circle circle;
   final MapCreatedCallback onMapCreated;
