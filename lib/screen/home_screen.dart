@@ -279,9 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                print("퇴근 불가 ㅎㅎ");
-              },
+              onPressed: () {},
               child: const Text(
                 Strings.TEXT_GO_TO_HOME,
               ),
@@ -290,8 +288,6 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-
-    setState(() {});
   }
 
   onMapCreated(GoogleMapController controller) {

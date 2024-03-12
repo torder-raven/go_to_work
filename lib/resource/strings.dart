@@ -16,7 +16,7 @@ class Strings {
   static const MESSAGE_LOCATION_STATE_DENIED = "위치 권한 허가가 필요합니다.";
   static const MESSAGE_LOCATION_STATE_DENIED_FOREVER = "위치 권한 허가가 필요합니다.\n\n설정 > 아래로 스크롤하여 앱을 찾습니다.\n앱을 탭하고 다음과 같은 옵션을 선택합니다.\n\"앱을 사용하는 동안\" 또는 \"항상\"";
   static const MESSAGE_LOCATION_STATE_WHILE_IN_USE = "";
-  static const MESSAGE_LOCATION_STATE_ALWAYS = "";
+  static const MESSAGE_LOCATION_STATE_ALWAYS = "위치 권한이 허가 됐습니다.";
   static const MESSAGE_LOCATION_STATE_UNABLE_TO_DETERMINE = "";
 
   static const MESSAGE_GO_TO_LOCATION_SETTING = "권한 설정하러 가기";
