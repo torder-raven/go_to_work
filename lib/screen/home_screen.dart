@@ -95,9 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
           bool canChoolCheck = distance < 100;
 
           if (canChoolCheck) {
-            DialogUtil().showAlertDialog(context, Strings.GO_TO_WORK_SUCCESS);
+            DialogUtil.showAlertDialog(context, Strings.GO_TO_WORK_SUCCESS);
           } else {
-            DialogUtil().showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
+            DialogUtil.showAlertDialog(context, Strings.GO_TO_WORK_FAIL);
           }
         },
         child: const Text(

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DialogUtil {
-  void showAlertDialog(BuildContext context, String msg) {
+class DialogUtil{
+  DialogUtil._();
+
+  static void showAlertDialog(BuildContext context, String msg) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
