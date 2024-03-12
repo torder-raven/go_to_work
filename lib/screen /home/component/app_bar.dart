@@ -18,23 +18,10 @@ AppBar renderAppBar({required IconButton iconButton}) {
   );
 }
 
-IconButton goToMyLocation({required GoogleMapController? mapController}) {
+IconButton Location({required VoidCallback onPressed}) {
   return IconButton(
     onPressed: () async {
-      if (mapController == null) {
-        return;
-      }
-
-      final location = await Geolocator.getCurrentPosition();
-
-      mapController?.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(
-            location.latitude,
-            location.longitude,
-          ),
-        ),
-      );
+      onPressed();
     },
     color: Colors.blue,
     icon: Icon(
